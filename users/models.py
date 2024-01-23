@@ -16,14 +16,26 @@ class AdminUserManager(Manager):
         return super().get_queryset().filter(is_admin=True)
 
 
+class PhoneModel(models.Model):
+    number = models.CharField(max_length=20, blank=True, null=True)
+
+    def __int__(self):
+        return self.number
+
+
+class LanguageChoice(models.TextChoices):
+    UZ = 'uz', 'Uzbek'
+    RU = 'ru', 'Russian'
+
+
 class User(CreateUpdateTracker):
     user_id = models.PositiveBigIntegerField(primary_key=True)  # telegram_id
     username = models.CharField(max_length=32, **nb)
     first_name = models.CharField(max_length=256)
     last_name = models.CharField(max_length=256, **nb)
-    language_code = models.CharField(max_length=8, help_text="Telegram client's lang", **nb)
+    # language_code = models.CharField(max_length=8, help_text="Telegram client's lang", **nb)
     deep_link = models.CharField(max_length=64, **nb)
-
+    language = models.CharField(max_length=2, choices=LanguageChoice.choices, blank=True, null=True)
     is_blocked_bot = models.BooleanField(default=False)
 
     is_admin = models.BooleanField(default=False)

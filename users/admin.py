@@ -5,18 +5,23 @@ from django.shortcuts import render
 from dtb.settings import DEBUG
 
 from users.models import Location
-from users.models import User
+from users.models import User, PhoneModel
 from users.forms import BroadcastForm
 
 from users.tasks import broadcast_message
 from tgbot.handlers.broadcast_message.utils import send_one_message
 
 
+@admin.register(PhoneModel)
+class PhoneAdmin(admin.ModelAdmin):
+    list_display = ['number']
+
+
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = [
-        'user_id', 'username', 'first_name', 'last_name', 
-        'language_code', 'deep_link',
+        'user_id', 'username', 'first_name', 'last_name',
+        'deep_link',
         'created_at', 'updated_at', "is_blocked_bot",
     ]
     list_filter = ["is_blocked_bot", ]

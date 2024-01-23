@@ -3,7 +3,9 @@ import datetime
 from django.utils import timezone
 from telegram import ParseMode, Update
 from telegram.ext import CallbackContext
+from telegram import ReplyKeyboardMarkup
 
+from product.models import Category
 from tgbot.handlers.onboarding import static_text
 from tgbot.handlers.utils.info import extract_user_data_from_update
 from users.models import User, PhoneModel
@@ -11,17 +13,20 @@ from tgbot.handlers.onboarding import keyboards
 from tgbot import states
 
 
-def command_start(update: Update, context: CallbackContext) -> None:
+def category(update: Update, context: CallbackContext) -> None:
     u, created = User.get_user_and_created(update, context)
+    categories = Category.objects.filter(parent=None)
+    if not len(categories):
+        update.message.reply_text("No categories")
 
-    if not u.language:
-        text = "Tilni tanlang"
-        update.message.reply_text(text, reply_markup=keyboards.language_keyboard())
-        return states.LANGUAGES
+    keyboard = []
+    for index in range(0, len(categories), 2):
+        if len(categories) - 1 == index:
+            keyboard.append([categories[index].title])
+        else:
+            keyboard.append([categories[index].title, categories[index + 1].title])
 
-    else:
-        text = static_text.start_not_created.format(first_name=u.first_name)
-        update.message.reply_text(text=text, reply_markup=keyboards.main_keyboard())
+    update.message.reply_text("Keyboard", reply_markup=ReplyKeyboardMarkup(keyboard))
 
 
 def contact_def(update: Update, context: CallbackContext) -> None:
@@ -48,17 +53,6 @@ def choose_languages(update: Update, context: CallbackContext) -> None:
     text = static_text.start_not_created.format(first_name=u.first_name)
     update.message.reply_text(text=text, reply_markup=keyboards.main_keyboard())
     return states.MAIN
-
-
-
-
-
-
-
-
-
-
-
 
 # def secret_level(update: Update, context: CallbackContext) -> None:
 #     # callback_data: SECRET_LEVEL_BUTTON variable from manage_data.py
